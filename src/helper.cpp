@@ -1,14 +1,13 @@
 #include "helper.h"
 #include <cstdio>
 
-void logger::info(const std::string& s) {
-    printf("[info ] %s\n", s.c_str());
-}
+// --- logger ---
+void logger::info(const std::string& s)
+{printf("[info ] %s\n", s.c_str());}
+void logger::error(const std::string &s)
+{printf("\033[31;1m[error] %s\033[0m\n", s.c_str());}
 
-void logger::error(const std::string &s) {
-    printf("\033[31;1m[error] %s\033[0m\n", s.c_str());
-}
-
+// --- Configure ---
 Configure::Configure(): _width(0), _height(0), _depth(0) {}
 Configure* Configure::setWidth(int w) {_width = w;return this;}
 Configure* Configure::setHeight(int h) {_height = h;return this;}
@@ -17,13 +16,11 @@ int Configure::getWidth() const {return _width;}
 int Configure::getHeight() const {return _height;}
 int Configure::getDepth() const {return _depth;}
 
-VncHelper::VncHelper(Configure* cfg): _cfg(cfg), _server{} {
-
-}
+// --- VncHelper ---
+VncHelper::VncHelper(Configure* cfg): _cfg(cfg), _server{} {}
 
 VncHelper* VncHelper::init(int* argc,char** argv) {
-    if (_cfg->getWidth() <= 0
-    || _cfg->getHeight() <= 0) {
+    if (_cfg->getWidth() <= 0 || _cfg->getHeight() <= 0) {
         logger::error("Keep width > 0 && height > 0!");
         exit(1);
     }
@@ -38,6 +35,11 @@ VncHelper* VncHelper::init(int* argc,char** argv) {
 }
 
 VncHelper* VncHelper::update(char* data) {
+    /**
+     * Here, watch out!
+     * Make sure the color sequence correct!
+     * VNC is rgb, but X11 is bgr!
+     */
     for (int k = 0; k < _cfg->getWidth() * _cfg->getHeight(); k++) {
         *(_server->frameBuffer + k * 4 + 0) = data[k * 4 + 2];
         *(_server->frameBuffer + k * 4 + 1) = data[k * 4 + 1];
@@ -52,7 +54,7 @@ VncHelper* VncHelper::start() {
     rfbRunEventLoop(_server, -1, FALSE);
     return this;
 }
-
+// --- XlibHelper ---
 XlibHelper::XlibHelper(Configure* cfg): _cfg(cfg), _pImg(nullptr) {}
 
 XlibHelper* XlibHelper::init() {
