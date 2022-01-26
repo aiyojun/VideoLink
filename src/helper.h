@@ -5,19 +5,30 @@
 // X11/xlib
 #include <X11/Xlib.h>
 
+#include <string>
+
+class logger {
+public:
+    static void info(const std::string& s);
+    static void error(const std::string& s);
+private:
+    logger() = default;
+};
+
 class Configure {
 private:
     int _width;
     int _height;
     int _depth;
 public:
+    Configure();
     Configure* setWidth(int w);
     Configure* setHeight(int h);
     Configure* setDepth(int d);
 
-    int getWidth();
-    int getHeight();
-    int getDepth();
+    int getWidth() const;
+    int getHeight() const;
+    int getDepth() const;
 };
 
 class VncHelper {

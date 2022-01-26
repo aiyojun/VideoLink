@@ -1,17 +1,32 @@
 #include "helper.h"
+#include <cstdio>
 
+void logger::info(const std::string& s) {
+    printf("[info ] %s\n", s.c_str());
+}
+
+void logger::error(const std::string &s) {
+    printf("\033[31;1m[error] %s\033[0m\n", s.c_str());
+}
+
+Configure::Configure(): _width(0), _height(0), _depth(0) {}
 Configure* Configure::setWidth(int w) {_width = w;return this;}
 Configure* Configure::setHeight(int h) {_height = h;return this;}
 Configure* Configure::setDepth(int d) {_depth = d;return this;}
-int Configure::getWidth() {return _width;}
-int Configure::getHeight() {return _height;}
-int Configure::getDepth() {return _depth;}
+int Configure::getWidth() const {return _width;}
+int Configure::getHeight() const {return _height;}
+int Configure::getDepth() const {return _depth;}
 
-VncHelper::VncHelper(Configure* cfg): _cfg(cfg) {
+VncHelper::VncHelper(Configure* cfg): _cfg(cfg), _server{} {
 
 }
 
 VncHelper* VncHelper::init(int* argc,char** argv) {
+    if (_cfg->getWidth() <= 0
+    || _cfg->getHeight() <= 0) {
+        logger::error("Keep width > 0 && height > 0!");
+        exit(1);
+    }
     _server = rfbGetScreen(
             argc, argv,
             _cfg->getWidth(),
@@ -56,5 +71,4 @@ XlibHelper* XlibHelper::close() {
     XCloseDisplay(_display);
     return this;
 }
-
 
